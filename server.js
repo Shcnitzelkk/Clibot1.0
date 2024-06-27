@@ -30,8 +30,8 @@ const execSQLQuery = (sqlQry, id, res) => {
 
 app.post("/cadastro/paciente", (req, res) => {
   console.log("Testado");
-  const id = [req.body.cpf, req.body.nome, req.body.telefone, req.body.email, req.body.endereco];
-  execSQLQuery("INSERT INTO paciente VALUES (?,null,?,?,?,?)", id, res);
+  const id = [req.body.cpf, req.body.fk_plano_saude_id_plano_saude, req.body.nome, req.body.telefone, req.body.email, req.body.endereco];
+  execSQLQuery("INSERT INTO paciente VALUES (?,?,?,?,?,?)", id, res);
 });
 
 app.post("/cadastro/plano_saude", (req, res) => {
@@ -134,11 +134,28 @@ app.put("/update/:id", (req, res) => {
 //
 
 //Paciente
-app.put("/atualizar/paciente/:id", (req, res) => {
-  const id = [req.body.nome, req.body.telefone, req.body.email, req.body.endereco, req.body.cpf];
+app.put("/atualizar/paciente", (req, res) => {
+  const id = [req.body.fk_plano_saude_id_plano_saude, req.body.nome, req.body.telefone, req.body.email, req.body.endereco, req.body.cpf];
   execSQLQuery(
-    "UPDATE paciente SET nome=?, telefone=?, email=?, endereco=? WHERE cpf=?",
+    "UPDATE paciente SET fk_plano_saude_id_plano_saude=? nome=?, telefone=?, email=?, endereco=? WHERE cpf=?",
     id,
+    res
+  );
+});
+
+app.put("/atualizar/paciente2", (req, res) => {
+  const values = [
+    req.body.fk_plano_saude_id_plano_saude,
+    req.body.nome,
+    req.body.telefone,
+    req.body.email,
+    req.body.endereco,
+    req.body.cpf
+  ];
+  
+  execSQLQuery(
+    "UPDATE paciente SET fk_plano_saude_id_plano_saude=?, nome=?, telefone=?, email=?, endereco=? WHERE cpf=?",
+    values,
     res
   );
 });
