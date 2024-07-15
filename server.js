@@ -2,6 +2,8 @@
 const express = require("express");
 const app = express();
 const mysql = require("mysql2");
+var bodyParser = require('body-parser');
+app.use(bodyParser.json());
 const port = 3000;
 
 const db = {
