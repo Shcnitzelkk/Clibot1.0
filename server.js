@@ -2,6 +2,8 @@
 const express = require("express");
 const app = express();
 const mysql = require("mysql2");
+var bodyParser = require('body-parser');
+app.use(bodyParser.json());
 const port = 3000;
 
 const db = {
@@ -32,6 +34,24 @@ app.post("/cadastro/paciente", (req, res) => {
   console.log("Testado");
   const id = [req.body.cpf, req.body.fk_plano_saude_id_plano_saude, req.body.nome, req.body.telefone, req.body.email, req.body.endereco];
   execSQLQuery("INSERT INTO paciente VALUES (?,?,?,?,?,?)", id, res);
+
+  fetch('http://192.168.2.107:8080/message/sendText/clibot', { // faço requisição http //faço post de cadastro do usuário
+    method: 'POST',
+    headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    },
+    body: jsonBody,
+  })
+  .then(response => response.json())
+  .then(json => {
+    console.log(json);
+    navigation.goBack();
+  })
+  .catch((err) => {
+    console.log(err);//imprime no console caso ocorra algum erro
+  });
+
 });
 
 app.post("/cadastro/plano_saude", (req, res) => {
@@ -134,15 +154,43 @@ app.put("/update/:id", (req, res) => {
 //
 
 //Paciente
-app.put("/atualizar/paciente", (req, res) => {
-  const id = [req.body.fk_plano_saude_id_plano_saude, req.body.nome, req.body.telefone, req.body.email, req.body.endereco, req.body.cpf];
+app.put("/atualizar/paciente/:id", (req, res) => {
+  const id = [req.body.fk_plano_saude_id_plano_saude, req.body.nome, req.body.telefone, req.body.email, req.body.endereco, req.params.id];
+  const query = "UPDATE paciente SET fk_plano_saude_id_plano_saude=? nome=?, telefone=?, email=?, endereco=? WHERE cpf=?";
+
   execSQLQuery(
-    "UPDATE paciente SET fk_plano_saude_id_plano_saude=? nome=?, telefone=?, email=?, endereco=? WHERE cpf=?",
+    query,
     id,
     res
   );
 });
 
+
+//
+
+/*
+app.put("/atualizar/paciente/:id", (req, res) => {
+  const { fk_plano_saude_id_plano_saude, nome, telefone, email, endereco } = req.body;
+  const { id } = req.params;
+
+  const params = [
+    fk_plano_saude_id_plano_saude,
+    nome,
+    telefone,
+    email,
+    endereco,
+    id  // Considerando que 'id' aqui se refere ao cpf
+  ];
+
+  const query = "UPDATE paciente SET fk_plano_saude_id_plano_saude=?, nome=?, telefone=?, email=?, endereco=? WHERE cpf=?";
+
+  execSQLQuery(query, params, res);
+});
+*/
+
+
+//
+/*
 app.put("/atualizar/paciente2", (req, res) => {
   const values = [
     req.body.fk_plano_saude_id_plano_saude,
@@ -159,10 +207,11 @@ app.put("/atualizar/paciente2", (req, res) => {
     res
   );
 });
+*/
 
 //Plano_Saude
 app.put("/atualizar/plano_saude/:id", (req, res) => {
-  const id = [req.body.nome, req.body.tipo_plano, req.body.operadora, req.id_plano_saude];
+  const id = [req.body.nome, req.body.tipo_plano, req.body.operadora, req.params.id];
   execSQLQuery(
     "UPDATE plano_saude SET nome=?, tipo_plano=?, operadora=? WHERE id_plano_saude=?",
     id,
@@ -173,7 +222,7 @@ app.put("/atualizar/plano_saude/:id", (req, res) => {
 //Estabelecimento
 app.put("/atualizar/estabelecimento/:id", (req, res) => {
   const id = [req.body.telefone, req.body.bairro, req.body.rua, req.body.cidade, req.body.horario_de_funcionamento_inicio, 
-              req.body.horario_de_funcionamento_fim, req.body.nome, req.body.descricao, req.body.tipo, req.body.token, req.id_Estabelecimento];
+              req.body.horario_de_funcionamento_fim, req.body.nome, req.body.descricao, req.body.tipo, req.body.token, req.params.id];
   execSQLQuery(
     "UPDATE estabelecimento SET telefone=?, bairro=?, rua=?, cidade=?, horario_de_funcionamento_inicio=?, horario_de_funcionamento_fim=?, nome=?, descricao=?, tipo=?, token=? WHERE id_Estabelecimento=?",
     id,
@@ -183,7 +232,7 @@ app.put("/atualizar/estabelecimento/:id", (req, res) => {
 
 //Profissional
 app.put("/atualizar/profissional/:id", (req, res) => {
-  const id = [req.body.nome, req.body.area_atuacao, req.body.senha, req.body.telefone, req.body.cpf_profissional_de_saude];
+  const id = [req.body.nome, req.body.area_atuacao, req.body.senha, req.body.telefone, req.params.id];
   execSQLQuery(
     "UPDATE profissional SET nome=?, area_atuacao=?, senha=?, telefone=? WHERE cpf_profissional_de_saude=?",
     id,
@@ -193,7 +242,7 @@ app.put("/atualizar/profissional/:id", (req, res) => {
 
 //Agendamento
 app.put("/atualizar/agendamento/:id", (req, res) => {
-  const id = [req.body.fk_horario_id_Agenda, req.body.fk_agendamento_id_paciente, req.body.data, req.body.hora, req.body.observacao, req.body.id_agendamento];
+  const id = [req.body.fk_horario_id_Agenda, req.body.fk_agendamento_id_paciente, req.body.data, req.body.hora, req.body.observacao, req.params.id];
   execSQLQuery(
     "UPDATE agendamento SET fk_horario_id_Agenda=?, fk_agendamento_id_paciente=?, data=?, hora=?, observacao=? WHERE id_agendamento=?",
     id,
@@ -203,7 +252,7 @@ app.put("/atualizar/agendamento/:id", (req, res) => {
 
 //Agenda
 app.put("/atualizar/agenda/:id", (req, res) => {
-  const id = [req.body.horario_inicio, req.body.horario_fim, req.body.intervalo, req.body.dia_semana, req.body.id_agenda];
+  const id = [req.body.horario_inicio, req.body.horario_fim, req.body.intervalo, req.body.dia_semana, req.params.id];
   execSQLQuery(
     "UPDATE agenda SET horario_inicio=?, horario_fim=?, intervalo=?, dia_semana=? WHERE id_agenda=?",
     id,
@@ -212,18 +261,18 @@ app.put("/atualizar/agenda/:id", (req, res) => {
 });
 
 //Plano_Saude_Profissional
-app.put("/atualizar/plano_saude_profissional/:id", (req, res) => {
-  const id = [req.body.fk_plano_saude_id_plano_saude, req.body.fk_profissional_cpf_profissional_de_saude];
+app.put("/atualizar/plano_saude_profissional/:fk_plano_saude_id_plano_saude_old/:fk_profissional_cpf_profissional_de_saude_old", (req, res) => {
+  const id = [req.body.fk_plano_saude_id_plano_saude, req.body.fk_profissional_cpf_profissional_de_saude, req.params.fk_plano_saude_id_plano_saude_old, req.params.fk_profissional_cpf_profissional_de_saude_old];
   execSQLQuery(
-    "UPDATE plano_saude_profissional SET fk_plano_saude_id_plano_saude=?, req.body.fk_profissional_cpf_profissional_de_saude=? WHERE fk_plano_saude_id_plano_saude=? AND fk_profissional_cpf_profissional_de_saude=?",
+    "UPDATE plano_saude_profissional SET fk_plano_saude_id_plano_saude=?, fk_profissional_cpf_profissional_de_saude=? WHERE fk_plano_saude_id_plano_saude=? AND fk_profissional_cpf_profissional_de_saude=?",
     id,
     res
   );
 });
 
 //Estabelecimento_Profissional
-app.put("/atualizar/estabelecimento_profissional/:id", (req, res) => {
-  const id = [req.body.fk_estabelecimento_id_Estabelecimento, req.body.fk_profissional_cpf_profissional_de_saude];
+app.put("/atualizar/estabelecimento_profissional/:fk_estabelecimento_id_Estabelecimento_old/:fk_profissional_cpf_profissional_de_saude_old", (req, res) => {
+  const id = [req.body.fk_estabelecimento_id_Estabelecimento, req.body.fk_profissional_cpf_profissional_de_saude, req.params.fk_estabelecimento_id_Estabelecimento_old, req.params.fk_profissional_cpf_profissional_de_saude_old];
   execSQLQuery(
     "UPDATE estabelecimento_profissional SET fk_estabelecimento_id_Estabelecimento=?, fk_profissional_cpf_profissional_de_saude=? WHERE fk_estabelecimento_id_Estabelecimento=? AND fk_profissional_cpf_profissional_de_saude=?",
     id,
