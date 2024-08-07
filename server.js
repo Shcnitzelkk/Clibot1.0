@@ -28,30 +28,66 @@ const execSQLQuery = (sqlQry, id, res) => {
   });
 };
 
+app.post("/ler/mensagem", (req, res) => {
+  if (!req.body.data.key.fromMe) {
+    
+  
+  console.log(req.body);
+  console.log(req.body.data.pushName, req.body.data.message.conversation); 
+  console.log(req.body.data.remoteJid);
+  const myHeaders = new Headers();
+myHeaders.append("apikey", "qmd6bj4bhjdgq755uj9o3");
+myHeaders.append("Content-Type", "application/json");
+
+const raw = JSON.stringify({
+  "number": req.body.data.key.remoteJid.split('@')[0],
+  "textMessage": {
+    "text": "Olá " + req.body.data.pushName + "\nSou o Clibot, vou te atender\nVocê enviou esta mensagem " + req.body.data.message.conversation
+  }
+ 
+});
+
+const requestOptions = {
+  method: "POST",
+  headers: myHeaders,
+  body: raw,
+  redirect: "follow"
+};
+
+fetch("http://200.18.142.40:8080/message/sendText/clibot", requestOptions)
+  .then((response) => response.text())
+  .then((result) => console.log(result))
+  .catch((error) => console.error(error));
+}
+
+});
+
 //CREATE/INSERT
 
 app.post("/cadastro/paciente", (req, res) => {
   console.log("Testado");
   const id = [req.body.cpf, req.body.fk_plano_saude_id_plano_saude, req.body.nome, req.body.telefone, req.body.email, req.body.endereco];
   execSQLQuery("INSERT INTO paciente VALUES (?,?,?,?,?,?)", id, res);
-
-  fetch('http://192.168.2.107:8080/message/sendText/clibot', { // faço requisição http //faço post de cadastro do usuário
+  console.log("Ok");
+  //var userObj = {nome:nome, email: email, senha:senha};
+  //var jsonBody = JSON.stringify(userObj);
+  /*
+  fetch('http://localhost:3000/ver/paciente', { // faço requisição http //faço post de cadastro do usuário
     method: 'POST',
     headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
     },
-    body: jsonBody,
+    //body: jsonBody,
   })
   .then(response => response.json())
   .then(json => {
     console.log(json);
-    navigation.goBack();
   })
   .catch((err) => {
     console.log(err);//imprime no console caso ocorra algum erro
   });
-
+ */
 });
 
 app.post("/cadastro/plano_saude", (req, res) => {
