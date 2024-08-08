@@ -54,7 +54,7 @@ const requestOptions = {
   redirect: "follow"
 };
 
-fetch("http://200.18.142.40:8080/message/sendText/clibot", requestOptions)
+fetch("http://192.168.2.140:8080/message/sendText/clibot", requestOptions)
   .then((response) => response.text())
   .then((result) => console.log(result))
   .catch((error) => console.error(error));
@@ -69,25 +69,30 @@ app.post("/cadastro/paciente", (req, res) => {
   const id = [req.body.cpf, req.body.fk_plano_saude_id_plano_saude, req.body.nome, req.body.telefone, req.body.email, req.body.endereco];
   execSQLQuery("INSERT INTO paciente VALUES (?,?,?,?,?,?)", id, res);
   console.log("Ok");
-  //var userObj = {nome:nome, email: email, senha:senha};
-  //var jsonBody = JSON.stringify(userObj);
-  /*
-  fetch('http://localhost:3000/ver/paciente', { // faço requisição http //faço post de cadastro do usuário
-    method: 'POST',
-    headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-    },
-    //body: jsonBody,
+  const myHeaders = new Headers();
+  myHeaders.append("apikey", "qmd6bj4bhjdgq755uj9o3");
+  myHeaders.append("Content-Type", "application/json");
+  
+  const raw = JSON.stringify({
+    "number": req.body.telefone,
+    "textMessage": {
+      "text": "Olá " + req.body.nome + "\nSou o Clibot, vou te atender\nVocê foi cadastrado!"
+    }
+   
   })
-  .then(response => response.json())
-  .then(json => {
-    console.log(json);
-  })
-  .catch((err) => {
-    console.log(err);//imprime no console caso ocorra algum erro
-  });
- */
+  
+  const requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: raw,
+    redirect: "follow"
+  };
+  
+  fetch("http://192.168.2.140:8080/message/sendText/clibot", requestOptions)
+    .then((response) => response.text())
+    .then((result) => console.log(result))
+    .catch((error) => console.error(error));
+  
 });
 
 app.post("/cadastro/plano_saude", (req, res) => {
